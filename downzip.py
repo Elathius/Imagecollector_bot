@@ -10,7 +10,7 @@ import shutil
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
-newpath = "imgstobezipped/"
+newpath = "ignoredspace/imgstobezipped/"
 
 
 

@@ -14,9 +14,13 @@ bot.
 """
 from credentials import TELEAUTHKEY
 import logging
-
+import requests
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+
+from server import API_URL
+
+
 
 # Enable logging
 logging.basicConfig(
@@ -46,9 +50,53 @@ def echo(update: Update, context: CallbackContext) -> None:
     """Echo the user message."""
     update.message.reply_text(update.message.text)
 
+
+##############################################################
+API_URL = f'https://api.telegram.org/bot{TELEAUTHKEY}' + '/{method_name}'
+##############################################################
+
+
+
+##Exec 1
+def send_local_file(file_path):
+    print("exec sendlocalfile")
+    f = open(file_path, 'rb')
+    file_bytes = f.read()
+    f.close()
+    response = {
+        'document': (f.name, file_bytes)
+    }
+    method_name = 'sendDocument'
+    return sendfile(method_name, response)
+
+##Exec 2
+def sendfile(method_name, params):
+    print("exec sendfile")
+    if method_name == 'sendDocument':
+        document = params['document']
+        del params['document']
+        r = requests.post(url=API_URL.format(method_name=method_name), params=params, files={'document': document})
+        print("Doc detected")
+        print(requests.post(url=API_URL.format(method_name=method_name), params=params, files={'document': document}))
+        print(r.status_code)
+    else:
+        r = requests.post(url=API_URL.format(method_name=method_name), params=params)
+        print("No Doc detected")
+        print(r.status_code)
+    return r.status_code == 200
+
+
+##############################################################
 def collect(update: Update, context: CallbackContext) -> None:
     """Echo the user message."""
+    print("exec 1")
     update.message.reply_text('Collecting your images!')
+    print("exec 2")
+    print(send_local_file('Ziparchx.zip'))
+    print("exec 3")
+##############################################################
+
+
 
 
 def main() -> None:
@@ -63,6 +111,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
     dispatcher.add_handler(CommandHandler("collect", collect))
+    dispatcher.add_handler(CommandHandler("sendfile", sendfile))
 
     # on non command i.e message - echo the message on Telegram
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
