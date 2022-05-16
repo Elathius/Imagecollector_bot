@@ -1,0 +1,11 @@
+# Ignore folders
+ignoredspace
+
+#imgs
+*.jpg
+*.png
+*.jpeg
+*.zip
+
+# Cred
+credentials.py
